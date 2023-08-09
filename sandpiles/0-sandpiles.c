@@ -1,119 +1,128 @@
+#include <stdio.h>
 #include "sandpiles.h"
 
 /**
- * grid_addition - add 2 grids
- * @grid1: first matrix
- * @grid2: second matrix
+ * print_grid_sum - Print 3x3 grids sum
+ * @grid1: Left 3x3 grid
+ * @grid2: Right 3x3 grid
  */
-
-void grid_addition(int grid1[3][3], int grid2[3][3])
+static void print_grid_sum(int grid1[3][3], int grid2[3][3])
 {
-	int i, j;
+    int i, j;
 
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			grid1[i][j] = grid1[i][j] + grid2[i][j];
-		}
-	}
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            if (j)
+                printf(" ");
+            printf("%d", grid1[i][j]);
+        }
+
+        printf(" %c ", (i == 1 ? '+' : ' '));
+
+        for (j = 0; j < 3; j++)
+        {
+            if (j)
+                printf(" ");
+            printf("%d", grid2[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 /**
- * grid_print - print a grid
- * @grid: matrix
+ * print_grid - Print 3x3 grid
+ * @grid: 3x3 grid
  */
-
-void grid_print(int grid[3][3])
+static void print_grid(int grid[3][3])
 {
-	int i = 0;
-	int j = 0;
+    int i, j;
 
-	printf("=\n");
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (j)
-				printf(" ");
-			printf("%d", grid[i][j]);
-		}
-		printf("\n");
-	}
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            if (j)
+                printf(" ");
+            printf("%d", grid[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 /**
- * grid_is_ok - check if a grid is ok
- * @grid: matrix
- * Return: 1 if is ok or 0 if not
+ * sandpiles_sum - Computes the sum of two sandpiles
+ * @grid1: Left 3x3 grid
+ * @grid2: Right 3x3 grid
  */
-
-int grid_is_ok(int grid[3][3])
-{
-	int i = 0;
-	int j = 0;
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (grid[i][j] > 3)
-				return (0);
-		}
-	}
-	return (1);
-}
-
-/**
- * grid_change - change a grid value
- * @grid1: matrix
- */
-
-void grid_change(int grid1[3][3])
-{
-	int i = 0;
-	int j = 0;
-	int gridx[3][3];
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-			gridx[i][j] = 0;
-	}
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (grid1[i][j] > 3)
-			{
-				grid1[i][j] = grid1[i][j] - 4;
-				if ((i - 1) >= 0 && (i - 1) < 3)
-					gridx[i - 1][j] += 1;
-				if ((j - 1) >= 0 && (j - 1) < 3)
-					gridx[i][j - 1] += 1;
-				if ((i + 1) >= 0 && (i + 1) < 3)
-					gridx[i + 1][j] += 1;
-				if ((j + 1) >= 0 && (j + 1) < 3)
-					gridx[i][j + 1] += 1;
-			}
-		}
-	}
-	grid_addition(grid1, gridx);
-}
-
-/**
- * sandpiles_sum - sum 2 sandpiles
- * @grid1: first matrix
- * @grid2: second matrix
- */
-
 void sandpiles_sum(int grid1[3][3], int grid2[3][3])
 {
-	grid_addition(grid1, grid2);
-	while (!grid_is_ok(grid1))
-	{
-		grid_print(grid1);
-		grid_change(grid1);
-	}
+    int i, j;
+    int stable = 0;
+    int tmp_grid[3][3];
+
+    // Add grids element-wise
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            grid1[i][j] += grid2[i][j];
+
+            // Check if the sum is unstable
+            if (grid1[i][j] > 3)
+                stable = 1;
+        }
+    }
+
+    // Perform toppling until the grid is stable
+    while (stable)
+    {
+        printf("=\n");
+        print_grid(grid1);
+        stable = 0;
+
+        // Copy grid1 to tmp_grid
+        for (i = 0; i < 3; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                tmp_grid[i][j] = grid1[i][j];
+            }
+        }
+
+        // Topple the sandpiles
+        for (i = 0; i < 3; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                // Check if the current cell has more than 3 grains
+                if (tmp_grid[i][j] > 3)
+                {
+                    grid1[i][j] -= 4; // Reduce the grains by 4
+
+                    // Distribute the grains to neighboring cells
+                    if (i - 1 >= 0)
+                        grid1[i - 1][j] += 1; // Top neighbor
+                    if (i + 1 < 3)
+                        grid1[i + 1][j] += 1; // Bottom neighbor
+                    if (j - 1 >= 0)
+                        grid1[i][j - 1] += 1; // Left neighbor
+                    if (j + 1 < 3)
+                        grid1[i][j + 1] += 1; // Right neighbor
+                }
+            }
+        }
+
+        // Check if the resulting grid is stable
+        for (i = 0; i < 3; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                // Check if any cell has more than 3 grains
+                if (grid1[i][j] > 3)
+                    stable = 1;
+            }
+        }
+    }
 }
