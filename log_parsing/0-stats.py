@@ -1,36 +1,54 @@
 #!/usr/bin/python3
-"""reads stdin line by line and computes metrics"""
+'''
+script that reads stdin line by line and computes metrics
+'''
 import sys
 
-
-total_size = 0
-status_list = ['200', '301', '400', '401', '403', '404', '405', '500']
-counter_status = [0, 0, 0, 0, 0, 0, 0, 0]
-count = 0
+status_codes = [200, 301, 400, 401, 403, 404, 405, 500]
+totalsize = 0
+list = []
 
 try:
-    for std_line in sys.stdin:
-        line_sep = std_line.split(" ")
-        if len(line_sep) > 2:
-            size = line_sep[-1]
-            status = line_sep[-2]
-            if status in status_list:
-                j = status_list.index(status)
-                counter_status[j] += 1
-            total_size += int(size)
-            count += 1
-        if count == 10:
-            print("File size: {:d}".format(total_size))
-            for i in range(8):
-                if counter_status[i] != 0:
-                    print("{:}: {:d}".format(status_list[i],
-                                             counter_status[i]))
-            count = 0
+    for line in sys.stdin:
+        fields = line.split()
+        status_code = int(fields[-2])
+        totalsize += int(fields[-1])
+        list.append(status_code)
+        list.sort()
+
+        if (len(list) % 10) == 0:
+            print("File size:", totalsize)
+            count = 1
+            status = 0
+            for i in list:
+                if int(i) not in status_codes:
+                    continue
+                elif status == 0:
+                    status = i
+                elif status != i:
+                    print("{}: {}".format(status, count))
+                    status = i
+                    count = 1
+                else:
+                    count += 1
+            if int(status) in status_codes:
+                print("{}: {}".format(status, count))
 except Exception:
     pass
 finally:
-    print("File size: {:d}".format(total_size))
-    for i in range(8):
-        if counter_status[i] != 0:
-            print("{:}: {:d}".format(status_list[i],
-                                     counter_status[i]))
+            print("File size:", totalsize)
+            count = 1
+            status = 0
+            for i in list:
+                if int(i) not in status_codes:
+                    continue
+                elif status == 0:
+                    status = i
+                elif status != i:
+                    print("{}: {}".format(status, count))
+                    status = i
+                    count = 1
+                else:
+                    count += 1
+            if int(status) in status_codes:
+                print("{}: {}".format(status, count))
