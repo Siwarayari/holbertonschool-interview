@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-""" The N queens puzzle
-"""
+"""queens puzzle is the challenge of placing N
+non-attacking queens on an N×N chessboard. Write
+a program that solves the N queens problem"""
 
 
 import sys
@@ -43,7 +44,8 @@ a program that solves the N queens problem"""
 if __name__ == "__main__":
     """Usage: nqueens N
     where N must be an integer greater or equal to 4
-    """
+    The program should print every possible solution
+    to the problem"""
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         exit(1)
